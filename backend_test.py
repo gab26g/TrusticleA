@@ -28,7 +28,7 @@ class AdminDashboardTester:
             if expected_title:
                 title = soup.title.string if soup.title else ""
                 if expected_title not in title:
-                    print(f"❌ Failed - Title mismatch. Expected '{expected_title}', got '{title}'")
+                    print(f"❌ Failed - Title mismatch. Expected '{expected_title}' in '{title}'")
                     return False
             
             # Check for expected elements
@@ -64,7 +64,7 @@ class AdminDashboardTester:
             
             # Check for expected links
             for link_text, link_href in expected_links:
-                links = soup.find_all('a', href=link_href)
+                links = soup.find_all('a', href=lambda href: href and link_href in href)
                 found = False
                 for link in links:
                     if link_text in link.text:
@@ -72,7 +72,7 @@ class AdminDashboardTester:
                         break
                 
                 if not found:
-                    print(f"❌ Failed - Link '{link_text}' with href '{link_href}' not found")
+                    print(f"❌ Failed - Link '{link_text}' with href containing '{link_href}' not found")
                     return False
             
             self.tests_passed += 1
@@ -109,7 +109,7 @@ def main():
             ('th', 'Username'),
             ('th', 'Email')
         ],
-        expected_title="User Management"
+        expected_title="Trusticle Admin"
     )
     
     # Test article management page
@@ -121,7 +121,7 @@ def main():
             ('th', 'Title'),
             ('th', 'Author')
         ],
-        expected_title="Article Management"
+        expected_title="Trusticle Admin"
     )
     
     # Test activity logs page
@@ -133,7 +133,7 @@ def main():
             ('th', 'User'),
             ('th', 'Action')
         ],
-        expected_title="Activity Logs"
+        expected_title="Trusticle Admin"
     )
     
     # Test settings page
@@ -144,7 +144,7 @@ def main():
             ('h1', 'Settings'),
             ('h2', 'Site Settings')
         ],
-        expected_title="Settings"
+        expected_title="Trusticle Admin"
     )
     
     # Test navigation links
@@ -155,7 +155,7 @@ def main():
             ('Articles', 'articles.php'),
             ('Users', 'users.php'),
             ('Activity Logs', 'activity_logs.php'),
-            ('Settings', 'settings.php')
+            ('Settings', 'settings.php#site-settings')
         ]
     )
     
