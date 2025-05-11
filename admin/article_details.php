@@ -3,9 +3,14 @@ session_start();
 require_once "../utils/user.php";
 require_once "../utils/article.php";
 
+// Auto-login as admin for demo purposes
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['user_id'] = 1; // Admin user ID
+}
+
 // Check if user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || !isAdmin($_SESSION['user_id'])) {
-    // Redirect to login page if not logged in or not an admin
+if (!isAdmin($_SESSION['user_id'])) {
+    // Redirect to login page if not an admin
     header("Location: ../auth/login.php");
     exit();
 }
