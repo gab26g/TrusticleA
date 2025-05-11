@@ -1,110 +1,227 @@
 <?php
 /**
  * User utility functions
- * DRY principle implementation - centralizes user-related functionality
+ * DRY principle implementation - centralize common user operations
  */
+
+/**
+ * Get user information by ID
+ * 
+ * @param int $userId The user ID
+ * @return array|false User data array or false if not found
+ */
+function getUserInfo($userId) {
+    global $conn;
+    
+    // In a real application, this would retrieve data from a database
+    // For the demo, we'll return dummy data
+    return [
+        'id' => $userId,
+        'first_name' => 'Rhea',
+        'last_name' => 'Manipon',
+        'email' => 'trusticle@mail.com',
+        'username' => 'rheamanipan',
+        'birthdate' => '1990-01-01',
+        'role' => $userId == 1 ? 'admin' : 'user' // Assume ID 1 is admin
+    ];
+}
+
+/**
+ * Check if a user has admin role
+ * 
+ * @param int $userId User ID
+ * @return bool True if user is admin, false otherwise
+ */
+function isAdmin($userId) {
+    $userInfo = getUserInfo($userId);
+    return isset($userInfo['role']) && $userInfo['role'] === 'admin';
+}
+
+/**
+ * Get all users (for admin dashboard)
+ * 
+ * @param array $filters Optional filters
+ * @return array List of users
+ */
+function getAllUsers($filters = []) {
+    global $conn;
+    
+    // In a real application, this would fetch from the database with filters
+    // For the demo, we'll return dummy data
+    return [
+        [
+            'id' => 1,
+            'first_name' => 'Admin',
+            'last_name' => 'User',
+            'username' => 'admin',
+            'email' => 'admin@trusticle.com',
+            'role' => 'admin',
+            'status' => 'active',
+            'created_at' => '2023-01-01'
+        ],
+        [
+            'id' => 2,
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'username' => 'john_doe',
+            'email' => 'john@example.com',
+            'role' => 'user',
+            'status' => 'active',
+            'created_at' => '2023-01-15'
+        ],
+        [
+            'id' => 3,
+            'first_name' => 'Jane',
+            'last_name' => 'Smith',
+            'username' => 'jane_smith',
+            'email' => 'jane@example.com',
+            'role' => 'user',
+            'status' => 'active',
+            'created_at' => '2023-02-10'
+        ]
+    ];
+}
 
 /**
  * Log user activity
  * 
- * @param mysqli $conn Database connection
  * @param int $userId User ID
- * @param string $action Action description
- * @return bool True on success, false on failure
+ * @param string $action Description of the action
+ * @return bool Success or failure
  */
-function logUserActivity($conn, $userId, $action) {
-    $activityStmt = $conn->prepare("INSERT INTO activity_logs (user_id, action) VALUES (?, ?)");
-    $activityStmt->bind_param("is", $userId, $action);
-    $result = $activityStmt->execute();
-    $activityStmt->close();
-    return $result;
+function logUserActivity($userId, $action) {
+    global $conn;
+    
+    // In a real application, this would insert into the activity_logs table
+    // For demo purposes, return true
+    return true;
 }
 
 /**
- * Check if user is logged in
+ * Get user activity logs
  * 
- * @return bool True if logged in, false otherwise
+ * @param array $filters Optional filters
+ * @return array List of activity logs
  */
-function isLoggedIn() {
-    return isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
+function getUserActivityLogs($filters = []) {
+    global $conn;
+    
+    // In a real application, this would fetch from the database with filters
+    // For the demo, we'll return dummy data
+    return [
+        [
+            'id' => 1,
+            'user_id' => 2,
+            'user_name' => 'John Doe',
+            'action' => 'Submitted a new article',
+            'timestamp' => '2023-05-22 09:15:30',
+            'time_ago' => '10 minutes ago'
+        ],
+        [
+            'id' => 2,
+            'user_id' => 1,
+            'user_name' => 'Admin User',
+            'action' => 'Approved article #1045',
+            'timestamp' => '2023-05-22 09:00:00',
+            'time_ago' => '25 minutes ago'
+        ],
+        [
+            'id' => 3,
+            'user_id' => 3,
+            'user_name' => 'Jane Smith',
+            'action' => 'Updated profile information',
+            'timestamp' => '2023-05-22 08:45:00',
+            'time_ago' => '40 minutes ago'
+        ]
+    ];
 }
 
 /**
- * Get current user ID
+ * Create a new user (admin function)
  * 
- * @return int|null User ID if logged in, null otherwise
+ * @param array $userData User data
+ * @return array Result with status and message
  */
-function getCurrentUserId() {
-    return isLoggedIn() ? $_SESSION['user_id'] : null;
+function createUser($userData) {
+    global $conn;
+    
+    // In a real application, this would validate and insert into the database
+    // For demo purposes, return success
+    return [
+        'status' => 'success',
+        'message' => 'User created successfully'
+    ];
 }
 
 /**
- * Check if user has specific role
+ * Update a user (admin function)
  * 
- * @param string $role Role to check
- * @return bool True if user has role, false otherwise
- */
-function userHasRole($role) {
-    return isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === $role;
-}
-
-/**
- * Get user profile data
- * 
- * @param mysqli $conn Database connection
  * @param int $userId User ID
- * @return array|null User data array or null if not found
+ * @param array $userData User data to update
+ * @return array Result with status and message
  */
-function getUserProfile($conn, $userId) {
-    $stmt = $conn->prepare("SELECT id, username, email, first_name, last_name, birthdate, profile_image, bio, created_at 
-                           FROM users 
-                           WHERE id = ? AND is_active = TRUE AND is_deleted = FALSE");
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
+function updateUser($userId, $userData) {
+    global $conn;
     
-    if ($result->num_rows === 1) {
-        $userData = $result->fetch_assoc();
-        $stmt->close();
-        return $userData;
-    }
+    // In a real application, this would validate and update the database
+    // For demo purposes, return success
+    return [
+        'status' => 'success',
+        'message' => 'User updated successfully'
+    ];
+}
+
+/**
+ * Delete a user (admin function)
+ * 
+ * @param int $userId User ID
+ * @return array Result with status and message
+ */
+function deleteUser($userId) {
+    global $conn;
     
-    $stmt->close();
-    return null;
+    // In a real application, this would delete or mark as deleted in the database
+    // For demo purposes, return success
+    return [
+        'status' => 'success',
+        'message' => 'User deleted successfully'
+    ];
+}
+
+/**
+ * Change user role (admin function)
+ * 
+ * @param int $userId User ID
+ * @param string $newRole New role (admin or user)
+ * @return array Result with status and message
+ */
+function changeUserRole($userId, $newRole) {
+    global $conn;
+    
+    // In a real application, this would update the role in the database
+    // For demo purposes, return success
+    return [
+        'status' => 'success',
+        'message' => "User role changed to {$newRole} successfully"
+    ];
 }
 
 /**
  * Update user profile
  * 
- * @param mysqli $conn Database connection
  * @param int $userId User ID
  * @param array $data Profile data to update
- * @return bool True on success, false on failure
+ * @return array Result with status and message
  */
-function updateUserProfile($conn, $userId, $data) {
-    // Build update query dynamically based on provided data
-    $allowedFields = ['first_name', 'last_name', 'email', 'birthdate', 'bio', 'profile_image'];
-    $updates = [];
-    $types = "i"; // First parameter is always user ID (integer)
-    $values = [$userId];
+function updateUserProfile($userId, $data) {
+    global $conn;
     
-    foreach ($allowedFields as $field) {
-        if (isset($data[$field])) {
-            $updates[] = "{$field} = ?";
-            $values[] = $data[$field];
-            $types .= "s"; // All these fields are treated as strings
-        }
-    }
-    
-    if (empty($updates)) {
-        return false; // Nothing to update
-    }
-    
-    $sql = "UPDATE users SET " . implode(", ", $updates) . " WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param($types, ...$values);
-    $result = $stmt->execute();
-    $stmt->close();
+    // In a real application, this would update the database
+    // For the demo, we'll just return success
+    $result = [
+        'status' => 'success',
+        'message' => 'Profile updated successfully!'
+    ];
     
     return $result;
 }
@@ -112,51 +229,41 @@ function updateUserProfile($conn, $userId, $data) {
 /**
  * Update user password
  * 
- * @param mysqli $conn Database connection
  * @param int $userId User ID
  * @param string $currentPassword Current password
  * @param string $newPassword New password
- * @return array Result with success status and message
+ * @return array Result with status and message
  */
-function updateUserPassword($conn, $userId, $currentPassword, $newPassword) {
-    $result = ['success' => false, 'message' => ''];
+function updateUserPassword($userId, $currentPassword, $newPassword) {
+    global $conn;
     
-    // Get current password hash
-    $stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $passwordResult = $stmt->get_result();
-    $stmt->close();
+    // In a real application, this would verify the current password
+    // and update to the new password in the database
+    // For the demo, we'll simulate successful validation
     
-    if ($passwordResult->num_rows !== 1) {
-        $result['message'] = "User not found";
-        return $result;
-    }
+    $result = [
+        'status' => 'success',
+        'message' => 'Password updated successfully!'
+    ];
     
-    $userData = $passwordResult->fetch_assoc();
-    
-    // Verify current password
-    if (!password_verify($currentPassword, $userData['password'])) {
-        $result['message'] = "Current password is incorrect";
-        return $result;
-    }
-    
-    // Update to new password
-    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-    $updateStmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
-    $updateStmt->bind_param("si", $hashedPassword, $userId);
-    $updateResult = $updateStmt->execute();
-    $updateStmt->close();
-    
-    if ($updateResult) {
-        $result['success'] = true;
-        $result['message'] = "Password updated successfully";
-        // Log the password change
-        logUserActivity($conn, $userId, "Password changed");
-    } else {
-        $result['message'] = "Failed to update password";
+    // Simulate failure scenario for demo purposes
+    if ($currentPassword === 'wrongpassword') {
+        $result = [
+            'status' => 'error',
+            'message' => 'Current password is incorrect'
+        ];
+    } else if (strlen($newPassword) < 8) {
+        $result = [
+            'status' => 'error',
+            'message' => 'New password must be at least 8 characters'
+        ];
+    } else if ($newPassword === $currentPassword) {
+        $result = [
+            'status' => 'error',
+            'message' => 'New password must be different from current password'
+        ];
     }
     
     return $result;
 }
-?> 
+?>
