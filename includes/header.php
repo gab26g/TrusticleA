@@ -29,6 +29,12 @@
                 <i class="fas fa-file-alt"></i>
                 <span>Article</span>
             </a>
+            <?php if (isset($_SESSION['user_id']) && isAdmin($_SESSION['user_id'])): ?>
+            <a href="../admin/dashboard.php" class="menu-item admin-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Admin Dashboard</span>
+            </a>
+            <?php endif; ?>
             <a href="#" class="menu-item">
                 <i class="fas fa-chart-bar"></i>
                 <span>Analytics</span>
