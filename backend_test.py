@@ -142,7 +142,7 @@ def main():
         "admin/settings.php",
         expected_elements=[
             ('h1', 'Settings'),
-            ('h2', 'Site Settings')
+            ('h2', 'Appearance')
         ],
         expected_title="Trusticle Admin"
     )
